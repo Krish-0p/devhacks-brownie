@@ -105,8 +105,16 @@ const UI = (() => {
         if (player.isDrawing) tags += '<span class="player-tag drawing">✏️ Drawing</span>';
         if (player.hasGuessed) tags += '<span class="player-tag guessed">✓</span>';
 
+        // Use avatar image if available, otherwise initial
+        let avatarHtml;
+        if (player.avatar) {
+            avatarHtml = `<div class="player-avatar has-img"><img src="${escapeHtml(player.avatar)}" alt=""></div>`;
+        } else {
+            avatarHtml = `<div class="player-avatar ${avatarColor}">${initial}</div>`;
+        }
+
         li.innerHTML = `
-      <div class="player-avatar ${avatarColor}">${initial}</div>
+      ${avatarHtml}
       <span class="player-name">${escapeHtml(player.username)}</span>
       ${tags}
       <span class="player-score">${player.score}</span>

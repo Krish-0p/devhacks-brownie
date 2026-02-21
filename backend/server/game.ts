@@ -8,6 +8,8 @@ import {
     getPlayer, getPlayersInRoom, broadcastToRoom, sendTo, toPlayerInfo,
 } from "./state";
 import { clearRoomTimers } from "./room";
+import { GameHistory } from "./models/GameHistory";
+import { User } from "./models/User";
 import words from "./words.json";
 
 // ---- Start Game ----
@@ -357,6 +359,63 @@ function endGame(room: Room): void {
         leaderboard,
         winner,
     });
+
+    // Persist game history to MongoDB (fire and forget)
+    persistGameHistory(room, leaderboard, winner).catch((err) => {
+        console.error("Failed to persist game history:", err);
+    });
+}
+
+// ---- Persist Game History ----
+
+async function persistGameHistory(
+    room: Room,
+    leaderboard: LeaderboardEntry[],
+    winnerUsername: string
+): Promise<void> {
+    const playersInRoom = getPlayersInRoom(room.roomId);
+    if (playersInRoom.length === 0) return;
+
+    // Build player entries with real auth user IDs
+    const playerEntries = leaderboard.map((entry, index) => {
+        const player = playersInRoom.find((p) => p.username === entry.username);
+        return {
+            userId: player?.authUserId || "unknown",
+            username: entry.username,
+            score: entry.score,
+            rank: index + 1,
+        };
+    });
+
+    const winnerPlayer = playersInRoom.find((p) => p.username === winnerUsername);
+
+    if (!winnerPlayer) return;
+
+    // Save game history
+    await GameHistory.create({
+        roomId: room.roomId,
+        players: playerEntries,
+        winner: {
+            userId: winnerPlayer.authUserId,
+            username: winnerUsername,
+        },
+        totalRounds: room.totalRounds,
+    });
+
+    // Update user stats
+    for (const entry of playerEntries) {
+        if (entry.userId === "unknown") continue;
+        const updateData: Record<string, number> = {
+            gamesPlayed: 1,
+            totalScore: entry.score,
+        };
+        if (entry.rank === 1) {
+            updateData.gamesWon = 1;
+        }
+        await User.findByIdAndUpdate(entry.userId, {
+            $inc: updateData,
+        }).catch(() => {});
+    }
 }
 
 // ---- Play Again ----

@@ -8,8 +8,10 @@ const Socket = (() => {
     const handlers = {};
     let reconnectAttempts = 0;
     const MAX_RECONNECTS = 5;
+    let intentionalClose = false;
 
     function connect() {
+        intentionalClose = false;
         const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
         const url = `${protocol}//${location.host}/ws`;
 
@@ -32,15 +34,34 @@ const Socket = (() => {
             }
         };
 
-        ws.onclose = () => {
-            console.log('[WS] Disconnected');
+        ws.onclose = (event) => {
+            console.log('[WS] Disconnected', event.code, event.reason);
             UI.setConnectionStatus('error');
-            attemptReconnect();
+
+            // 4001 = auth failed
+            if (event.code === 4001) {
+                App.onSessionExpired();
+                return;
+            }
+
+            if (!intentionalClose) {
+                attemptReconnect();
+            }
         };
 
         ws.onerror = (err) => {
             console.error('[WS] Error:', err);
         };
+    }
+
+    function disconnect() {
+        intentionalClose = true;
+        if (ws) {
+            ws.close();
+            ws = null;
+        }
+        socketId = null;
+        UI.setConnectionStatus('error');
     }
 
     function attemptReconnect() {
@@ -73,5 +94,5 @@ const Socket = (() => {
         socketId = id;
     }
 
-    return { connect, send, on, getSocketId, setSocketId };
+    return { connect, disconnect, send, on, getSocketId, setSocketId };
 })();

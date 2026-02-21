@@ -1,17 +1,19 @@
 // ============================================
-// Scribble Clone MVP — Shared Types
+// Scribble Clone — Shared Types
 // ============================================
 
 export interface Player {
     socketId: string;
-    userId: string;
-    username: string;
+    authUserId: string;       // MongoDB User._id
+    email: string;
+    username: string;          // display name from profile
+    avatar: string | null;
     roomId: string | null;
     score: number;
     hasGuessed: boolean;
     isDrawing: boolean;
-    canGuess: boolean; // false for late joiners until next round
-    lastGuessTime: number; // rate limiting
+    canGuess: boolean;
+    lastGuessTime: number;
 }
 
 export type RoomPhase =
@@ -47,7 +49,6 @@ export const GAME_CONFIG = {
     wordChoices: 3,
     minPlayers: 2,
     guessRateLimitMs: 500,
-    port: 3000,
 } as const;
 
 // ============================================
@@ -56,7 +57,6 @@ export const GAME_CONFIG = {
 
 // Client → Server
 export type ClientMessage =
-    | { type: "set_username"; username: string }
     | { type: "create_room" }
     | { type: "join_room"; roomId: string }
     | { type: "leave_room" }
@@ -69,8 +69,7 @@ export type ClientMessage =
 
 // Server → Client
 export type ServerMessage =
-    | { type: "connected"; socketId: string }
-    | { type: "username_set"; success: boolean; error?: string }
+    | { type: "connected"; socketId: string; username: string; avatar: string | null }
     | { type: "room_created"; roomId: string }
     | { type: "room_joined"; roomId: string; players: PlayerInfo[] }
     | { type: "room_error"; message: string }
@@ -99,6 +98,7 @@ export interface PlayerInfo {
     isDrawing: boolean;
     hasGuessed: boolean;
     canGuess: boolean;
+    avatar: string | null;
 }
 
 export interface LeaderboardEntry {

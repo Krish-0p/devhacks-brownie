@@ -1,12 +1,13 @@
 // ============================================
-// Scribble Clone MVP — In-Memory State
+// Scribble Clone — In-Memory State
 // ============================================
 
 import type { Player, Room, PlayerInfo } from "./types";
 import type { ServerWebSocket } from "bun";
+import type { WsAuthData } from "./middleware/wsAuth";
 
-// All connected players, keyed by WebSocket instance
-export const sockets = new Map<string, ServerWebSocket<{ socketId: string }>>();
+// All connected players, keyed by socketId
+export const sockets = new Map<string, ServerWebSocket<WsAuthData>>();
 export const players = new Map<string, Player>();
 export const rooms = new Map<string, Room>();
 
@@ -20,7 +21,7 @@ export function getRoom(roomId: string): Room | undefined {
     return rooms.get(roomId);
 }
 
-export function getSocket(socketId: string): ServerWebSocket<{ socketId: string }> | undefined {
+export function getSocket(socketId: string): ServerWebSocket<WsAuthData> | undefined {
     return sockets.get(socketId);
 }
 
@@ -41,6 +42,7 @@ export function toPlayerInfo(player: Player, room: Room): PlayerInfo {
         isDrawing: player.isDrawing,
         hasGuessed: player.hasGuessed,
         canGuess: player.canGuess,
+        avatar: player.avatar,
     };
 }
 

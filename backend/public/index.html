@@ -11,30 +11,280 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <!-- ========== LANDING VIEW ========== -->
-  <div id="view-landing" class="view active">
+  <!-- ========== AUTH: LOGIN VIEW ========== -->
+  <div id="view-login" class="view">
+    <div class="auth-container">
+      <div class="landing-logo">
+        <h1>🎨 Scribble</h1>
+        <p class="tagline">Draw, Guess & Have Fun!</p>
+      </div>
+      <div class="auth-card glass-card">
+        <h2 class="auth-title">Sign In</h2>
+        <form id="login-form" class="auth-form">
+          <div class="input-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+          <div class="input-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <span class="auth-error" id="login-error"></span>
+          <button type="submit" class="btn btn-primary auth-btn" id="login-btn">Sign In</button>
+        </form>
+        <div class="auth-links">
+          <a href="#" id="link-forgot">Forgot password?</a>
+          <span class="auth-links-sep">•</span>
+          <a href="#" id="link-register">Create account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AUTH: MFA VERIFY VIEW ========== -->
+  <div id="view-mfa-login" class="view">
+    <div class="auth-container">
+      <div class="landing-logo">
+        <h1>🎨 Scribble</h1>
+        <p class="tagline">Two-Factor Authentication</p>
+      </div>
+      <div class="auth-card glass-card">
+        <h2 class="auth-title">🔐 Enter MFA Code</h2>
+        <p class="auth-subtitle">Open your authenticator app and enter the 6-digit code.</p>
+        <form id="mfa-login-form" class="auth-form">
+          <div class="input-group">
+            <label for="mfa-login-otp">Authenticator Code</label>
+            <input type="text" id="mfa-login-otp" placeholder="000000" maxlength="6" autocomplete="one-time-code" inputmode="numeric" required>
+          </div>
+          <span class="auth-error" id="mfa-login-error"></span>
+          <button type="submit" class="btn btn-primary auth-btn" id="mfa-login-btn">Verify</button>
+        </form>
+        <div class="auth-links">
+          <a href="#" id="link-back-login">← Back to Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AUTH: REGISTER VIEW ========== -->
+  <div id="view-register" class="view">
+    <div class="auth-container">
+      <div class="landing-logo">
+        <h1>🎨 Scribble</h1>
+        <p class="tagline">Draw, Guess & Have Fun!</p>
+      </div>
+      <div class="auth-card glass-card">
+        <h2 class="auth-title">Create Account</h2>
+        <form id="register-form" class="auth-form">
+          <div class="input-group">
+            <label for="register-email">Email</label>
+            <input type="email" id="register-email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+          <div class="input-group">
+            <label for="register-username">Username</label>
+            <div class="input-with-status">
+              <input type="text" id="register-username" placeholder="cool_artist" required minlength="3" maxlength="20" autocomplete="username" pattern="[a-z0-9_]+">
+              <span class="input-status" id="username-status"></span>
+            </div>
+            <span class="input-hint" id="username-hint">3-20 chars • lowercase letters, numbers, underscores</span>
+          </div>
+          <div class="input-group">
+            <label for="register-password">Password</label>
+            <input type="password" id="register-password" placeholder="Min 8 characters" required autocomplete="new-password" minlength="8">
+          </div>
+          <div class="input-group">
+            <label for="register-confirm">Confirm Password</label>
+            <input type="password" id="register-confirm" placeholder="Re-enter password" required autocomplete="new-password" minlength="8">
+          </div>
+          <span class="auth-error" id="register-error"></span>
+          <button type="submit" class="btn btn-primary auth-btn" id="register-btn">Create Account</button>
+        </form>
+        <div class="auth-links">
+          <a href="#" id="link-login-from-register">Already have an account? Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AUTH: VERIFY EMAIL VIEW ========== -->
+  <div id="view-verify-email" class="view">
+    <div class="auth-container">
+      <div class="landing-logo">
+        <h1>🎨 Scribble</h1>
+        <p class="tagline">Verify Your Email</p>
+      </div>
+      <div class="auth-card glass-card">
+        <h2 class="auth-title">📧 Check Your Inbox</h2>
+        <p class="auth-subtitle">We sent a 6-digit code to <strong id="verify-email-address"></strong></p>
+        <form id="verify-email-form" class="auth-form">
+          <div class="input-group">
+            <label for="verify-otp">Verification Code</label>
+            <input type="text" id="verify-otp" placeholder="000000" maxlength="6" autocomplete="one-time-code" inputmode="numeric" required>
+          </div>
+          <span class="auth-error" id="verify-email-error"></span>
+          <button type="submit" class="btn btn-primary auth-btn" id="verify-email-btn">Verify Email</button>
+        </form>
+        <div class="auth-links">
+          <a href="#" id="link-resend-otp">Resend code</a>
+          <span class="auth-links-sep">•</span>
+          <a href="#" id="link-login-from-verify">Back to Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AUTH: FORGOT PASSWORD VIEW ========== -->
+  <div id="view-forgot-password" class="view">
+    <div class="auth-container">
+      <div class="landing-logo">
+        <h1>🎨 Scribble</h1>
+        <p class="tagline">Reset Password</p>
+      </div>
+      <div class="auth-card glass-card">
+        <h2 class="auth-title">🔑 Forgot Password</h2>
+        <!-- Step 1: Request OTP -->
+        <div id="forgot-step-1">
+          <p class="auth-subtitle">Enter your email and we'll send a reset code.</p>
+          <form id="forgot-email-form" class="auth-form">
+            <div class="input-group">
+              <label for="forgot-email">Email</label>
+              <input type="email" id="forgot-email" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <span class="auth-error" id="forgot-error"></span>
+            <button type="submit" class="btn btn-primary auth-btn" id="forgot-send-btn">Send Reset Code</button>
+          </form>
+        </div>
+        <!-- Step 2: Enter OTP + New Password -->
+        <div id="forgot-step-2" style="display:none;">
+          <p class="auth-subtitle">Enter the code sent to <strong id="forgot-email-display"></strong></p>
+          <form id="forgot-reset-form" class="auth-form">
+            <div class="input-group">
+              <label for="forgot-otp">Reset Code</label>
+              <input type="text" id="forgot-otp" placeholder="000000" maxlength="6" autocomplete="one-time-code" inputmode="numeric" required>
+            </div>
+            <div class="input-group">
+              <label for="forgot-new-password">New Password</label>
+              <input type="password" id="forgot-new-password" placeholder="Min 8 characters" required minlength="8">
+            </div>
+            <span class="auth-error" id="forgot-reset-error"></span>
+            <button type="submit" class="btn btn-primary auth-btn" id="forgot-reset-btn">Reset Password</button>
+          </form>
+        </div>
+        <div class="auth-links">
+          <a href="#" id="link-login-from-forgot">← Back to Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== PROFILE VIEW ========== -->
+  <div id="view-profile" class="view">
+    <div class="profile-page">
+      <!-- Header -->
+      <div class="profile-header">
+        <a href="#" id="link-back-from-profile" class="profile-back-link">← Back to Game</a>
+        <div class="profile-header-title">
+          <h1>🎨 Scribble</h1>
+          <span class="profile-header-sep">—</span>
+          <span class="profile-header-subtitle">Your Profile</span>
+        </div>
+        <div class="profile-header-spacer"></div>
+      </div>
+
+      <!-- Two-column body -->
+      <div class="profile-body">
+        <!-- Left: Avatar + Stats -->
+        <div class="profile-left glass-card">
+          <div class="profile-avatar-section">
+            <div class="profile-avatar" id="profile-avatar">
+              <span id="profile-avatar-initial">?</span>
+            </div>
+            <div class="profile-avatar-actions">
+              <label for="avatar-file-input" class="btn btn-outline btn-small" id="avatar-upload-label">📷 Upload Photo</label>
+              <input type="file" id="avatar-file-input" accept="image/*" hidden>
+              <button class="btn btn-danger btn-small" id="btn-remove-avatar" style="display:none;">🗑️ Remove</button>
+            </div>
+            <span class="auth-error" id="avatar-error"></span>
+          </div>
+
+          <div class="profile-stats-section">
+            <h3 class="profile-section-title">📊 Game Stats</h3>
+            <div class="profile-stats-grid" id="profile-stats-grid"></div>
+          </div>
+        </div>
+
+        <!-- Center: Form -->
+        <div class="profile-center glass-card">
+          <h2 class="profile-form-title">Account Details</h2>
+          <form id="profile-form" class="profile-form">
+            <div class="profile-fields-grid">
+              <div class="input-group">
+                <label for="profile-email">Email</label>
+                <input type="email" id="profile-email" disabled class="input-disabled">
+              </div>
+              <div class="input-group">
+                <label for="profile-username">Username</label>
+                <div class="input-with-status">
+                  <input type="text" id="profile-username" placeholder="your_username" minlength="3" maxlength="20" pattern="[a-z0-9_]+" autocomplete="username">
+                  <span class="input-status" id="profile-username-status"></span>
+                </div>
+                <span class="input-hint" id="profile-username-hint">3-20 chars • lowercase letters, numbers, underscores</span>
+              </div>
+              <div class="input-group">
+                <label for="profile-first-name">First Name</label>
+                <input type="text" id="profile-first-name" placeholder="First name" maxlength="50" autocomplete="given-name">
+              </div>
+              <div class="input-group">
+                <label for="profile-last-name">Last Name</label>
+                <input type="text" id="profile-last-name" placeholder="Last name" maxlength="50" autocomplete="family-name">
+              </div>
+            </div>
+            <span class="auth-error" id="profile-error"></span>
+            <button type="submit" class="btn btn-primary profile-save-btn" id="profile-save-btn">Save Changes</button>
+          </form>
+        </div>
+
+        <!-- Right: Security / MFA -->
+        <div class="profile-right glass-card">
+          <h2 class="profile-form-title">🔐 Security</h2>
+          <div id="mfa-setup-card" class="mfa-panel">
+            <!-- dynamically populated by profile.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== LANDING VIEW (authenticated) ========== -->
+  <div id="view-landing" class="view">
     <div class="landing-container">
       <div class="landing-logo">
         <h1>🎨 Scribble</h1>
         <p class="tagline">Draw, Guess & Have Fun!</p>
       </div>
       <div class="landing-card glass-card">
-        <div class="input-group">
-          <label for="username-input">Your Name</label>
-          <input type="text" id="username-input" placeholder="Enter a cool nickname..." maxlength="16" autocomplete="off" spellcheck="false">
-          <span class="input-hint" id="username-error"></span>
+        <div class="landing-user-info" id="landing-user-info">
+          <div class="user-greeting">
+            <span id="user-avatar-display" class="user-avatar-small"></span>
+            <span>Hello, <strong id="user-display-name"></strong>!</span>
+          </div>
+          <div class="user-stats" id="user-stats"></div>
         </div>
         <div class="landing-actions">
-          <button id="btn-create-room" class="btn btn-primary" disabled>
+          <button id="btn-create-room" class="btn btn-primary">
             <span class="btn-icon">✨</span> Create Room
           </button>
           <div class="divider"><span>or</span></div>
           <div class="join-row">
             <input type="text" id="room-code-input" placeholder="Room Code" maxlength="6" autocomplete="off" spellcheck="false" class="room-code-field">
-            <button id="btn-join-room" class="btn btn-secondary" disabled>
+            <button id="btn-join-room" class="btn btn-secondary">
               Join
             </button>
           </div>
+        </div>
+        <div class="landing-bottom-actions">
+          <button id="btn-profile" class="btn btn-outline btn-small">👤 Profile</button>
+          <button id="btn-logout" class="btn btn-danger btn-small">Logout</button>
         </div>
       </div>
       <div class="connection-status" id="connection-status">
@@ -158,10 +408,17 @@
 
   <!-- Scripts -->
   <script src="/js/ui.js"></script>
+  <script src="/js/api.js"></script>
   <script src="/js/socket.js"></script>
   <script src="/js/canvas.js"></script>
   <script src="/js/chat.js"></script>
   <script src="/js/game.js"></script>
+  <script src="/js/pages/login.js"></script>
+  <script src="/js/pages/mfa-login.js"></script>
+  <script src="/js/pages/register.js"></script>
+  <script src="/js/pages/verify-email.js"></script>
+  <script src="/js/pages/forgot-password.js"></script>
+  <script src="/js/pages/profile.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>

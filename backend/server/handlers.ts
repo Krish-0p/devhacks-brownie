@@ -1,15 +1,16 @@
 // ============================================
-// Scribble Clone MVP — WebSocket Message Router
+// Scribble Clone — WebSocket Message Router
 // ============================================
 
 import type { ClientMessage } from "./types";
 import type { ServerWebSocket } from "bun";
-import { getPlayer, getRoom, broadcastToRoom } from "./state";
+import type { WsAuthData } from "./middleware/wsAuth";
+import { getPlayer, getRoom, broadcastToRoom, sendTo } from "./state";
 import { createRoom, joinRoom, leaveRoom } from "./room";
 import { startGame, selectWord, handleGuess, handlePlayAgain } from "./game";
 
 export function handleMessage(
-    ws: ServerWebSocket<{ socketId: string }>,
+    ws: ServerWebSocket<WsAuthData>,
     raw: string
 ): void {
     const socketId = ws.data.socketId;
@@ -22,10 +23,6 @@ export function handleMessage(
     }
 
     switch (msg.type) {
-        case "set_username":
-            handleSetUsername(socketId, msg.username);
-            break;
-
         case "create_room":
             createRoom(socketId);
             break;
@@ -59,7 +56,6 @@ export function handleMessage(
         case "draw": {
             const player = getPlayer(socketId);
             if (!player?.roomId || !player.isDrawing) return;
-            // Broadcast draw data to everyone in the room except the drawer
             broadcastToRoom(player.roomId, {
                 type: "draw",
                 x: msg.x,
@@ -96,38 +92,4 @@ export function handleMessage(
             break;
         }
     }
-}
-
-// ---- Set Username ----
-
-import { players, sockets, sendTo } from "./state";
-
-function handleSetUsername(socketId: string, username: string): void {
-    const trimmed = username.trim();
-
-    if (!trimmed || trimmed.length < 2 || trimmed.length > 16) {
-        sendTo(socketId, {
-            type: "username_set",
-            success: false,
-            error: "Username must be 2-16 characters",
-        });
-        return;
-    }
-
-    // Check for alphanumeric + spaces only
-    if (!/^[a-zA-Z0-9_ ]+$/.test(trimmed)) {
-        sendTo(socketId, {
-            type: "username_set",
-            success: false,
-            error: "Username can only contain letters, numbers, spaces, and underscores",
-        });
-        return;
-    }
-
-    const player = getPlayer(socketId);
-    if (!player) return;
-
-    player.username = trimmed;
-
-    sendTo(socketId, { type: "username_set", success: true });
 }
