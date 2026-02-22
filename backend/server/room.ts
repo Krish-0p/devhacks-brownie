@@ -2,17 +2,17 @@
 // Scribble Clone MVP — Room Management
 // ============================================
 
-import type { Player, Room, ServerMessage } from "./types";
-import { GAME_CONFIG } from "./types";
+import type { Player, Room, ServerMessage, GameType } from "./types";
+import { GAME_CONFIG, HANGMAN_CONFIG, TICTACTOE_CONFIG, FRUITNINJA_CONFIG } from "./types";
 import {
     rooms, players, getPlayer, getRoom, getPlayersInRoom,
     broadcastToRoom, sendTo, generateId, toPlayerInfo,
 } from "./state";
-import { endRoundEarly, handleDrawerDisconnect } from "./game";
+import { endRoundEarly, handleDrawerDisconnect, handleTttPlayerLeave, handleFnPlayerLeave } from "./game";
 
 // ---- Create Room ----
 
-export function createRoom(socketId: string): void {
+export function createRoom(socketId: string, gameType: GameType = "doodle"): void {
     const player = getPlayer(socketId);
     if (!player) return;
 
@@ -26,30 +26,56 @@ export function createRoom(socketId: string): void {
         roomId = generateId();
     }
 
+    const config = gameType === "hangman" ? HANGMAN_CONFIG
+                 : gameType === "tictactoe" ? TICTACTOE_CONFIG
+                 : gameType === "fruitninja" ? FRUITNINJA_CONFIG
+                 : GAME_CONFIG;
+
     const room: Room = {
         roomId,
+        gameType,
         hostId: socketId,
         players: [socketId],
         currentRound: 0,
-        totalRounds: GAME_CONFIG.totalRounds,
+        totalRounds: config.totalRounds,
         currentDrawerIndex: -1,
         word: null,
         phase: "waiting",
         timer: null,
         timerInterval: null,
         timeLeft: 0,
-        maxPlayers: GAME_CONFIG.maxPlayers,
+        maxPlayers: config.maxPlayers,
         drawOrder: [],
         roundDrawnCount: 0,
+        // Hangman state (initialised but only used for hangman rooms)
+        guessedLetters: [],
+        wrongGuesses: 0,
+        maxWrongGuesses: HANGMAN_CONFIG.maxWrongGuesses,
+        revealedWord: [],
+        // Tic-Tac-Toe state (initialised but only used for tictactoe rooms)
+        tttBoard: Array(9).fill(""),
+        tttPlayerX: null,
+        tttPlayerO: null,
+        tttCurrentMark: "X" as const,
+        tttRoundWins: { X: 0, O: 0 },
+        // Fruit Ninja state (initialised but only used for fruitninja rooms)
+        fnScores: {},
+        fnLives: {},
+        fnRoundWins: {},
+        fnCubes: [],
+        fnCubeIdCounter: 0,
+        fnSpawnTimer: null,
+        fnSlowmo: {},
     };
 
     rooms.set(roomId, room);
     player.roomId = roomId;
 
-    sendTo(socketId, { type: "room_created", roomId });
+    sendTo(socketId, { type: "room_created", roomId, gameType });
     sendTo(socketId, {
         type: "room_joined",
         roomId,
+        gameType,
         players: [toPlayerInfo(player, room)],
     });
 }
@@ -100,6 +126,7 @@ export function joinRoom(socketId: string, roomId: string): void {
     sendTo(socketId, {
         type: "room_joined",
         roomId: normalizedId,
+        gameType: room.gameType,
         players: playersInRoom.map((p) => toPlayerInfo(p, room)),
     });
 
@@ -171,7 +198,11 @@ export function leaveRoom(socketId: string): void {
     }
 
     // If the drawer left during an active game, handle it
-    if (wasDrawing && (room.phase === "drawing" || room.phase === "picking")) {
+    if (room.gameType === "fruitninja" && (room.phase === "drawing") && room.players.length > 0) {
+        handleFnPlayerLeave(room, socketId);
+    } else if (room.gameType === "tictactoe" && (room.phase === "drawing") && room.players.length > 0) {
+        handleTttPlayerLeave(room, socketId);
+    } else if (wasDrawing && (room.phase === "drawing" || room.phase === "picking")) {
         handleDrawerDisconnect(room);
     } else if (room.phase === "drawing") {
         // Check if all remaining guessers have guessed — end round early

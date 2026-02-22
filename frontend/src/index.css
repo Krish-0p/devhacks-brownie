@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+/* ── Design Tokens (Tailwind 4 CSS-first theme) ── */
+@theme {
+  --color-primary: #a855f7;
+  --color-secondary: #22d3ee;
+  --color-game-bg: #5b21b6;
+  --color-game-dark: #4c1d95;
+  --color-neon-green: #84cc16;
+  --color-electric-orange: #f97316;
+  --color-accent: #fbbf24;
+  --color-surface-card: #ffffff;
+  --color-dark-outline: #18181b;
+  --color-surface-dark: #1a052e;
+  --color-game-pink: #f472b6;
+  --color-game-blue: #60a5fa;
+  --color-game-lime: #a3e635;
+  --color-game-yellow: #facc15;
+
+  --font-display: "Fredoka", sans-serif;
+  --font-body: "Nunito", sans-serif;
+
+  --shadow-chunky: 4px 4px 0px 0px #18181b;
+  --shadow-chunky-sm: 2px 2px 0px 0px #18181b;
+  --shadow-chunky-lg: 8px 8px 0px 0px #18181b;
+  --shadow-comic: 4px 4px 0px 0px #000000;
+  --shadow-comic-hover: 6px 6px 0px 0px #000000;
+  --shadow-inner-chunky: inset 0px -4px 0px 0px rgba(0, 0, 0, 0.1);
+
+  --animate-bounce-slight: bounce-slight 2s infinite;
+  --animate-shrink-timer: width-shrink 30s linear forwards;
+  --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes bounce-slight {
+    0%, 100% { transform: translateY(-2%); }
+    50% { transform: translateY(0); }
+  }
+
+  @keyframes width-shrink {
+    0% { width: 100%; }
+    100% { width: 0%; }
+  }
+}
+
+/* ── Base / Global Styles ── */
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-game-bg);
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20c2-2 4 0 4 2s-2 4-4 2-4 0-4-2 2-4 4-2zm50 10c0-3 3-5 5-3 3 2 1 6-2 6-2 0-3-3-3-3zm-30 40c3 0 5 3 4 6-2 3-6 2-7-1-1-3 1-5 3-5zm60-20c2-2 4 1 3 4-1 2-4 2-5 0-1-2 0-4 2-4z' fill='%237c3aed' fill-opacity='0.4'/%3E%3Ccircle cx='10' cy='80' r='2' fill='%238b5cf6' fill-opacity='0.3'/%3E%3Cpath d='M80 80l5-5m-5 0l5 5' stroke='%237c3aed' stroke-width='2' stroke-opacity='0.3'/%3E%3C/svg%3E");
+  background-size: 100px 100px;
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* ── Cartoon Text Effects ── */
+.chunky-text {
+  text-shadow: 3px 3px 0px #18181b;
+  -webkit-text-stroke: 1.5px #18181b;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  text-shadow: 6px 6px 0px #18181b;
+  -webkit-text-stroke: 2.5px #18181b;
+}
+
+/* ── Comic Card / Button base utilities ── */
+.comic-card {
+  border: 3px solid #000;
+  transition: all 0.2s ease-in-out;
+}
+
+.comic-btn {
+  border: 3px solid #000;
+  transition: all 0.1s ease;
+}
+.comic-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000;
+}
+
+.game-btn {
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  transition: all 0.1s;
+}
+.game-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 5px;
+}
+
+/* ── Hide scrollbar utility ── */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── Leaflet map — CARTO dark tiles are already dark, no filter needed ── */
+
+/* ── Material Symbols sizing helper ── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.icon-filled {
+  font-variation-settings: 'FILL' 1, 'wght' 700;
+}

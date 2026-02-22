@@ -14,6 +14,7 @@ export interface IGameHistoryPlayer {
 export interface IGameHistory extends Document {
     _id: mongoose.Types.ObjectId;
     roomId: string;
+    gameType: string;
     players: IGameHistoryPlayer[];
     winner: {
         userId: mongoose.Types.ObjectId;
@@ -29,6 +30,10 @@ const gameHistorySchema = new Schema<IGameHistory>(
             type: String,
             required: true,
             index: true,
+        },
+        gameType: {
+            type: String,
+            default: "doodle",
         },
         players: [
             {

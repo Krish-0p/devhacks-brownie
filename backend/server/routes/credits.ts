@@ -83,7 +83,8 @@ router.post("/buy", authenticate, async (req: Request, res: Response) => {
         // Build redirect URL — use the origin the user is actually on (ngrok, etc.)
         const origin = req.headers.origin || req.headers.referer?.replace(/\/+$/, '') || env.FRONTEND_URL;
         const baseUrl = origin.replace(/\/+$/, '');
-        const redirectUrl = `${baseUrl}/credits/status/${merchantOrderId}`;
+        // Point to the React frontend payment-status page (NOT under /credits/ so Vite won't proxy it)
+        const redirectUrl = `${baseUrl}/payment-status/${merchantOrderId}`;
 
         // Initiate PhonePe payment
         const paymentRedirectUrl = await initiatePayment(merchantOrderId, amountPaise, redirectUrl);
@@ -155,6 +156,61 @@ router.get("/status/:merchantOrderId", async (req: Request, res: Response) => {
     } catch (err: any) {
         console.error("Credits status error:", err.response?.data || err.message);
         res.send(buildStatusPage("ERROR", "Failed to check payment status", merchantOrderId, undefined, requestOrigin));
+    }
+});
+
+// ---- GET /credits/check/:merchantOrderId (JSON API for new frontend) ----
+// Processes the payment just like /status but returns JSON instead of HTML
+router.get("/check/:merchantOrderId", async (req: Request, res: Response) => {
+    const merchantOrderId = req.params.merchantOrderId as string;
+
+    try {
+        const txn = await Transaction.findOne({ merchantOrderId });
+        if (!txn) {
+            res.status(404).json({ state: "ERROR", error: "Transaction not found" });
+            return;
+        }
+
+        // If already completed, return success
+        if (txn.state === "COMPLETED") {
+            res.json({ state: "COMPLETED", credits: txn.credits, orderId: merchantOrderId });
+            return;
+        }
+
+        // Check status with PhonePe
+        const status = await checkStatus(merchantOrderId);
+
+        if (status.state === "COMPLETED") {
+            const updated = await Transaction.findOneAndUpdate(
+                { merchantOrderId, state: { $ne: "COMPLETED" } },
+                {
+                    state: "COMPLETED",
+                    phonepeOrderId: status.orderId,
+                    transactionId: status.transactionId,
+                },
+                { new: true }
+            );
+
+            if (updated) {
+                await User.findByIdAndUpdate(txn.userId, {
+                    $inc: { credits: txn.credits },
+                });
+                console.log(`✅ Credits granted: ${txn.credits} to user ${txn.userId} (order ${merchantOrderId})`);
+            }
+
+            res.json({ state: "COMPLETED", credits: txn.credits, orderId: merchantOrderId });
+        } else if (status.state === "FAILED") {
+            await Transaction.findOneAndUpdate(
+                { merchantOrderId, state: "INITIATED" },
+                { state: "FAILED", phonepeOrderId: status.orderId }
+            );
+            res.json({ state: "FAILED", error: "Payment failed", orderId: merchantOrderId });
+        } else {
+            res.json({ state: "PENDING", orderId: merchantOrderId });
+        }
+    } catch (err: any) {
+        console.error("Credits check error:", err.response?.data || err.message);
+        res.json({ state: "ERROR", error: "Failed to check payment status", orderId: merchantOrderId });
     }
 });
 

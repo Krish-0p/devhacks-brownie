@@ -22,6 +22,12 @@ export interface IUser extends Document {
     gamesPlayed: number;
     gamesWon: number;
     totalScore: number;
+    perGameStats: {
+        doodle: { played: number; won: number };
+        hangman: { played: number; won: number };
+        tictactoe: { played: number; won: number };
+        fruitninja: { played: number; won: number };
+    };
     location: {
         lat: number;
         lon: number;
@@ -109,6 +115,21 @@ const userSchema = new Schema<IUser>(
         totalScore: {
             type: Number,
             default: 0,
+        },
+        perGameStats: {
+            type: {
+                doodle:     { played: { type: Number, default: 0 }, won: { type: Number, default: 0 } },
+                hangman:    { played: { type: Number, default: 0 }, won: { type: Number, default: 0 } },
+                tictactoe:  { played: { type: Number, default: 0 }, won: { type: Number, default: 0 } },
+                fruitninja: { played: { type: Number, default: 0 }, won: { type: Number, default: 0 } },
+            },
+            default: {
+                doodle:     { played: 0, won: 0 },
+                hangman:    { played: 0, won: 0 },
+                tictactoe:  { played: 0, won: 0 },
+                fruitninja: { played: 0, won: 0 },
+            },
+            _id: false,
         },
         location: {
             type: {

@@ -7,7 +7,7 @@ import type { ServerWebSocket } from "bun";
 import type { WsAuthData } from "./middleware/wsAuth";
 import { getPlayer, getRoom, broadcastToRoom, sendTo } from "./state";
 import { createRoom, joinRoom, leaveRoom } from "./room";
-import { startGame, selectWord, handleGuess, handlePlayAgain } from "./game";
+import { startGame, selectWord, handleGuess, handlePlayAgain, handleLetterGuess, handleTttMove, handleFnSlice, handleFnMiss } from "./game";
 
 export async function handleMessage(
     ws: ServerWebSocket<WsAuthData>,
@@ -24,7 +24,7 @@ export async function handleMessage(
 
     switch (msg.type) {
         case "create_room":
-            createRoom(socketId);
+            createRoom(socketId, msg.gameType ?? "doodle");
             break;
 
         case "join_room":
@@ -89,6 +89,42 @@ export async function handleMessage(
             const room = getRoom(player.roomId);
             if (!room) return;
             await handlePlayAgain(socketId, room);
+            break;
+        }
+
+        case "guess_letter": {
+            const player = getPlayer(socketId);
+            if (!player?.roomId) return;
+            const room = getRoom(player.roomId);
+            if (!room) return;
+            handleLetterGuess(socketId, room, msg.letter);
+            break;
+        }
+
+        case "ttt_move": {
+            const player = getPlayer(socketId);
+            if (!player?.roomId) return;
+            const room = getRoom(player.roomId);
+            if (!room) return;
+            handleTttMove(socketId, room, msg.cell);
+            break;
+        }
+
+        case "fn_slice": {
+            const player = getPlayer(socketId);
+            if (!player?.roomId) return;
+            const room = getRoom(player.roomId);
+            if (!room) return;
+            handleFnSlice(socketId, room, msg.cubeId);
+            break;
+        }
+
+        case "fn_miss": {
+            const player = getPlayer(socketId);
+            if (!player?.roomId) return;
+            const room = getRoom(player.roomId);
+            if (!room) return;
+            handleFnMiss(socketId, room, msg.cubeId);
             break;
         }
     }
