@@ -18,18 +18,17 @@ export default function WordPickerModal() {
   };
 
   return (
-    <Modal open onClose={undefined} className="max-w-xl">
+    <Modal open onClose={undefined} className="max-w-lg w-full">
       <h2 className="text-2xl font-display font-black text-center text-dark-outline mb-2">PICK A WORD!</h2>
       <p className="text-center text-gray-500 font-bold text-sm mb-6">Choose what to draw</p>
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         {modal.words.map((word, i) => (
           <GameBtn
             key={word}
             variant={WORD_COLORS[i % WORD_COLORS.length]}
             size="md"
-            fullWidth
             onClick={() => handlePick(word)}
-            className="whitespace-nowrap text-sm"
+            className="whitespace-nowrap text-xs sm:text-sm min-w-0"
           >
             {word.toUpperCase()}
           </GameBtn>

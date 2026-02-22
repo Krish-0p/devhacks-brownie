@@ -91,8 +91,8 @@ export default function Game() {
 
   useSocketEvent('word_hint', useCallback((data) => {
     const hint = data.hint as string;
-    setWordHint(hint);
     setDrawing(false);
+    setWordHint(hint);
   }, [setWordHint, setDrawing]));
 
   useSocketEvent('timer_update', useCallback((data) => {
@@ -192,9 +192,13 @@ export default function Game() {
 
         {/* Center: word display */}
         <div className="flex-1 flex justify-center">
-          <div className="bg-yellow-400 border-4 border-black rounded-2xl px-6 py-2 shadow-[4px_4px_0_0_rgba(0,0,0,1)] max-w-sm w-full text-center transform -rotate-1">
-            <p className="font-display font-black text-black text-lg md:text-2xl tracking-[0.25em] leading-tight">
-              {wordDisplay || (amDrawing ? 'Pick a word!' : '_ _ _ _ _')}
+          <div className="bg-yellow-400 border-4 border-black rounded-2xl px-6 py-2 shadow-[4px_4px_0_0_rgba(0,0,0,1)] max-w-sm w-full text-center transform -rotate-1 overflow-hidden">
+            <p className={`font-display font-black text-black leading-tight ${
+              (wordDisplay || '').length > 15
+                ? 'text-sm md:text-base tracking-[0.12em]'
+                : 'text-lg md:text-2xl tracking-[0.25em]'
+            }`}>
+              {wordDisplay || (amDrawing ? 'Pick a word!' : '...')}
             </p>
           </div>
         </div>

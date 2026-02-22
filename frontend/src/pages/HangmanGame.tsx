@@ -100,8 +100,8 @@ export default function HangmanGame() {
 
   useSocketEvent('word_hint', useCallback((data) => {
     const hint = data.hint as string;
-    setWordHint(hint);
     setDrawing(false);
+    setWordHint(hint);
   }, [setWordHint, setDrawing]));
 
   useSocketEvent('hangman_update', useCallback((data) => {
